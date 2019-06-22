@@ -276,7 +276,28 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	float fValueH = a_fHeight * 0.5f;
+
+	vector3 pointTop(0, fValueH, 0); //tip of cone
+	vector3 pointBottomCenter(0, -fValueH, 0); //center point of cone base
+ 	std::vector<vector3> bottomVertices; //list of vertices on bottom of cone
+
+	//fill bottom vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		bottomVertices.push_back(vector3(x, fValueH, z));
+	}
+
+	//draw tri's using generated vertices
+	for (uint i = 0; i < bottomVertices.size() - 1; i++) {
+		AddTri(bottomVertices[i + 1], bottomVertices[i], pointTop);
+		AddTri(bottomVertices[i], bottomVertices[i + 1], pointBottomCenter);
+	}
+	AddTri(bottomVertices.back(), bottomVertices.front(), pointBottomCenter);
+	AddTri(bottomVertices.front(), bottomVertices.back(), pointTop);
+
 	// -------------------------------
 
 	// Adding information about color
