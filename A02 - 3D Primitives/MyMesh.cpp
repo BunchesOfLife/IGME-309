@@ -321,7 +321,44 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	float fValueH = a_fHeight * 0.5f;
+
+	vector3 pointTopCenter(0, fValueH, 0); //tip of cone
+	vector3 pointBottomCenter(0, -fValueH, 0); //center point of cone base
+	std::vector<vector3> topVertices; //list of vertices on top of cylinder
+	std::vector<vector3> bottomVertices; //list of vertices on bottom of cylinder
+
+	//fill top vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		topVertices.push_back(vector3(x, fValueH, z));
+	}
+
+	//fill bottom vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fRadius;
+		bottomVertices.push_back(vector3(x, -fValueH, z));
+	}
+
+	//draw top and bottom tri's
+	for (uint i = 0; i < bottomVertices.size() - 1; i++) {
+		AddTri(bottomVertices[i], bottomVertices[i + 1], pointBottomCenter);
+	}
+	AddTri(bottomVertices.back(), bottomVertices.front(), pointBottomCenter);
+	for (uint i = 0; i < topVertices.size() - 1; i++) {
+		AddTri(topVertices[i + 1], topVertices[i], pointTopCenter);
+	}
+	AddTri(topVertices.front(), topVertices.back(), pointTopCenter);
+
+	//draw side quads
+	for (uint i = 0; i < bottomVertices.size() - 1; i++) {
+		AddQuad(bottomVertices[i + 1], bottomVertices[i], topVertices[i + 1], topVertices[i]);
+	}
+	AddQuad(bottomVertices.front(), bottomVertices.back(), topVertices.front(), topVertices.back());
+
 	// -------------------------------
 
 	// Adding information about color
