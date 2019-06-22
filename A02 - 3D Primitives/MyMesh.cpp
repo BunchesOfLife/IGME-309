@@ -344,17 +344,17 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	}
 
 	//draw top and bottom tri's
-	for (uint i = 0; i < bottomVertices.size() - 1; i++) {
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
 		AddTri(bottomVertices[i], bottomVertices[i + 1], pointBottomCenter);
 	}
 	AddTri(bottomVertices.back(), bottomVertices.front(), pointBottomCenter);
-	for (uint i = 0; i < topVertices.size() - 1; i++) {
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
 		AddTri(topVertices[i + 1], topVertices[i], pointTopCenter);
 	}
 	AddTri(topVertices.front(), topVertices.back(), pointTopCenter);
 
 	//draw side quads
-	for (uint i = 0; i < bottomVertices.size() - 1; i++) {
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
 		AddQuad(bottomVertices[i + 1], bottomVertices[i], topVertices[i + 1], topVertices[i]);
 	}
 	AddQuad(bottomVertices.front(), bottomVertices.back(), topVertices.front(), topVertices.back());
@@ -388,7 +388,66 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	float fValueH = a_fHeight * 0.5f;
+
+	std::vector<vector3> topVerticesOut; //list of outer top vertices
+	std::vector<vector3> topVerticesIn; //list of inner top vertices
+	std::vector<vector3> bottomVerticesOut; //list of outer bottom vertices
+	std::vector<vector3> bottomVerticesIn; //list of inner bottom vertices
+
+	//fill top outer vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fOuterRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fOuterRadius;
+		topVerticesOut.push_back(vector3(x, fValueH, z));
+	}
+
+	//fill top inner vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fInnerRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fInnerRadius;
+		topVerticesIn.push_back(vector3(x, fValueH, z));
+	}
+
+	//fill bottom outer vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fOuterRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fOuterRadius;
+		bottomVerticesOut.push_back(vector3(x, -fValueH, z));
+	}
+
+	//fill bottom inner vertices
+	for (uint i = 0; i < a_nSubdivisions; i++) {
+		float x = std::cos((2 * std::_Pi / a_nSubdivisions) * i) * a_fInnerRadius;
+		float z = std::sin((2 * std::_Pi / a_nSubdivisions) * i) * a_fInnerRadius;
+		bottomVerticesIn.push_back(vector3(x, -fValueH, z));
+	}
+	
+	//draw bottom rings with quads
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
+		AddQuad(bottomVerticesOut[i], bottomVerticesOut[i + 1], bottomVerticesIn[i], bottomVerticesIn[i + 1]);
+	}
+	AddQuad(bottomVerticesOut.back(), bottomVerticesOut.front(), bottomVerticesIn.back(), bottomVerticesIn.front());
+
+	//draw top rings with quads
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
+		AddQuad(topVerticesOut[i + 1], topVerticesOut[i], topVerticesIn[i + 1], topVerticesIn[i]);
+	}
+	AddQuad(topVerticesOut.front(), topVerticesOut.back(), topVerticesIn.front(), topVerticesIn.back());
+	
+	//draw outer side quads
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
+		AddQuad(bottomVerticesOut[i + 1], bottomVerticesOut[i], topVerticesOut[i + 1], topVerticesOut[i]);
+	}
+	AddQuad(bottomVerticesOut.front(), bottomVerticesOut.back(), topVerticesOut.front(), topVerticesOut.back());
+
+	//draw inner side quads
+	for (uint i = 0; i < a_nSubdivisions - 1; i++) {
+		AddQuad(bottomVerticesIn[i], bottomVerticesIn[i + 1], topVerticesIn[i], topVerticesIn[i + 1]);
+	}
+	AddQuad(bottomVerticesIn.back(), bottomVerticesIn.front(), topVerticesIn.back(), topVerticesIn.front());
+
 	// -------------------------------
 
 	// Adding information about color
