@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Nora Murren - bsm4978@g.rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
@@ -59,7 +59,31 @@ void Application::Display(void)
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
+
+	static uint stopsCount = m_stopsList.size();
+	float animTime = 1.0f;
+	static uint route = 0;
+	vector3 start;
+	vector3 end;
+	if (route < stopsCount - 1) {
+		start = m_stopsList[route];
+		end = m_stopsList[route + 1];
+	}
+	else {
+		start = m_stopsList.back();
+		end = m_stopsList.front();
+	}
+
+	float percentage = MapValue(fTimer, 0.0f, animTime, 0.0f, 1.0f);
+
+	v3CurrentPos = glm::lerp(start, end, percentage);
+
+	if (percentage >= 1.0f) {
+		route++;
+		fTimer = m_pSystem->GetDeltaTime(uClock);
+		route %= stopsCount;
+	}
+
 	//-------------------
 	
 

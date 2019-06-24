@@ -324,8 +324,8 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 
 	float fValueH = a_fHeight * 0.5f;
 
-	vector3 pointTopCenter(0, fValueH, 0); //tip of cone
-	vector3 pointBottomCenter(0, -fValueH, 0); //center point of cone base
+	vector3 pointTopCenter(0, fValueH, 0); //center point of cylinder top
+	vector3 pointBottomCenter(0, -fValueH, 0); //center point of cylinder bottom
 	std::vector<vector3> topVertices; //list of vertices on top of cylinder
 	std::vector<vector3> bottomVertices; //list of vertices on bottom of cylinder
 
@@ -504,7 +504,26 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	vector3 topPole(0, a_fRadius, 0); //north pole vertex of sphere
+	vector3 bottomPole(0, -a_fRadius, 0); //south pole vertex of sphere
+	std::vector<vector3> vertices; // list of vertices
+
+	//generate vertices looping latitude then longitude
+	for (uint lat = -a_nSubdivisions/2; lat <= a_nSubdivisions/2; lat++) {
+		for (uint lon = 1; lon < a_nSubdivisions; lon++) {
+			float y = a_fRadius * std::sin((std::_Pi / a_nSubdivisions) * lat);
+			float x = std::cos((std::_Pi / a_nSubdivisions) * lon) * y;
+			float z = std::sin((std::_Pi / a_nSubdivisions) * lon) * y;
+			vertices.push_back(vector3(x, y, z));
+		}
+	}
+	/*
+	//draw rings from quads
+	for (uint i = 0; i < vertices.size() - a_nSubdivisions; i++) {
+		AddQuad(vertices[i], vertices[i + 1], vertices[i + a_nSubdivisions], vertices[i + a_nSubdivisions + 1]);
+	}
+	*/
 	// -------------------------------
 
 	// Adding information about color
