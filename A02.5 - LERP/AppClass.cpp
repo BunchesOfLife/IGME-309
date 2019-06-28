@@ -81,29 +81,17 @@ void Application::Display(void)
 
 		//---------------- lerp code -------------------
 
-		uint stopsCount = i + 3;		//store number of stops on torus
-		float animTime = 1.0f;				//set time of lerp along sections in seconds
+		uint stopsCount = i + 3;		//store number of stops on orbit
+		float animTime = 0.5f;			//set time of lerp along sections in seconds
+		static uint nodeIndex = 0;
 		
-		//define the list of positions of the nodes on the current torus
-		std::vector<vector3> nodeList;
-		for (uint nodeIndex = 0; nodeIndex < stopsCount; nodeIndex++) {
-			float x = std::cos((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
-			float y = std::sin((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
-			nodeList.push_back(vector3(x, y, 0.0f));
-		}
-
-		//define start and end of route to travel by the current node of the torus to the next node
-		static uint route = 0;
-		vector3 start;
-		vector3 end;
-		if (route < stopsCount - 1) {
-			start = nodeList[route];
-			end = nodeList[route + 1];
-		}
-		else {
-			start = nodeList.back();
-			end = nodeList.front();
-		}
+		//define start and end of route to travel by the current node of the orbit to the next node
+		float x1 = std::cos((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
+		float y1 = std::sin((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
+		float x2 = std::cos((2 * std::_Pi / stopsCount) * (nodeIndex + 1)) * orbitRadius;
+		float y2 = std::sin((2 * std::_Pi / stopsCount) * (nodeIndex + 1)) * orbitRadius;
+		vector3 start = vector3(x1, y1, 0.0f);
+		vector3 end = vector3(x2, y2, 0.0f);
 		
 		float percentage = MapValue(fTimer, 0.0f, animTime, 0.0f, 1.0f);  //lerp calculation percentage based on timer
 
@@ -111,9 +99,8 @@ void Application::Display(void)
 
 		//when you reach the next node, change the route and reset timer
 		if (percentage >= 1.0f) {
-			route++;
+			nodeIndex++;
 			fTimer = m_pSystem->GetDeltaTime(uClock);
-			route %= stopsCount;
 		}
 		
 		orbitRadius += 0.5f; //increment the radius for the next orbit
