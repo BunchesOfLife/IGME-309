@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Nora Murren - bsm4978@rit.edu";
 	
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -64,6 +64,13 @@ void Application::Display(void)
 	*/
 	//m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
 
+	//Get a timer for the lerp
+	static float fTimer = 0;	//store the new timer
+	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
+
+	float orbitRadius = 1.0f; //initial radius of orbits
+
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
@@ -71,6 +78,47 @@ void Application::Display(void)
 
 		//calculate the current position
 		vector3 v3CurrentPos = ZERO_V3;
+
+		//---------------- lerp code -------------------
+
+		uint stopsCount = i + 3;		//store number of stops on torus
+		float animTime = 1.0f;				//set time of lerp along sections in seconds
+		
+		//define the list of positions of the nodes on the current torus
+		std::vector<vector3> nodeList;
+		for (uint nodeIndex = 0; nodeIndex < stopsCount; nodeIndex++) {
+			float x = std::cos((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
+			float y = std::sin((2 * std::_Pi / stopsCount) * nodeIndex) * orbitRadius;
+			nodeList.push_back(vector3(x, y, 0.0f));
+		}
+
+		//define start and end of route to travel by the current node of the torus to the next node
+		static uint route = 0;
+		vector3 start;
+		vector3 end;
+		if (route < stopsCount - 1) {
+			start = nodeList[route];
+			end = nodeList[route + 1];
+		}
+		else {
+			start = nodeList.back();
+			end = nodeList.front();
+		}
+		
+		float percentage = MapValue(fTimer, 0.0f, animTime, 0.0f, 1.0f);  //lerp calculation percentage based on timer
+
+		v3CurrentPos = glm::lerp(start, end, percentage);  //calculate lerp between the nodes
+
+		//when you reach the next node, change the route and reset timer
+		if (percentage >= 1.0f) {
+			route++;
+			fTimer = m_pSystem->GetDeltaTime(uClock);
+			route %= stopsCount;
+		}
+		
+		orbitRadius += 0.5f; //increment the radius for the next orbit
+		//----------------------------------------------
+
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
 
 		//draw spheres
