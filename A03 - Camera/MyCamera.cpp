@@ -153,10 +153,34 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 void MyCamera::MoveForward(float a_fDistance)
 {
 	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
+	m_v3Position += vector3(0.0f, 0.0f, -a_fDistance);
 	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
 	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+void MyCamera::MoveVertical(float a_fDistance)
+{
+	m_v3Position += vector3(0.0f, -a_fDistance, 0.0f);
+	m_v3Target += vector3(0.0f, -a_fDistance, 0.0f);
+	m_v3Above += vector3(0.0f, -a_fDistance, 0.0f);
+}//Needs to be defined
+
+void MyCamera::MoveSideways(float a_fDistance)
+{
+	m_v3Position += vector3(a_fDistance, 0.0f, 0.0f);
+	m_v3Target += vector3(a_fDistance, 0.0f, 0.0f);
+	m_v3Above += vector3(a_fDistance, 0.0f, 0.0f);
+}
+
+void Simplex::MyCamera::RotatePitch(float a_fDistance)
+{
+	
+}
+
+void Simplex::MyCamera::RotateYaw(float a_fAngle)
+{
+	quaternion q = glm::angleAxis(glm::radians(a_fAngle), glm::normalize(m_v3Above - m_v3Position));
+	m_v3Forward = glm::rotate(q, m_v3Forward);
+	SetTarget(m_v3Forward + m_v3Position);
+}
+//Needs to be defined
