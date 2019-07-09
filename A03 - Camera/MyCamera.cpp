@@ -172,9 +172,13 @@ void MyCamera::MoveSideways(float a_fDistance)
 	m_v3Above += vector3(a_fDistance, 0.0f, 0.0f);
 }
 
-void Simplex::MyCamera::RotatePitch(float a_fDistance)
+void Simplex::MyCamera::RotatePitch(float a_fAngle)
 {
-	
+	vector3 right = glm::cross(m_v3Forward, glm::normalize(m_v3Above - m_v3Position)); //right vector
+
+	quaternion q = glm::angleAxis(glm::radians(a_fAngle), right);
+	m_v3Forward = glm::rotate(q, m_v3Forward);
+	SetTarget(m_v3Forward + m_v3Position);
 }
 
 void Simplex::MyCamera::RotateYaw(float a_fAngle)
