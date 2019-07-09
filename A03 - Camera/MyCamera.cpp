@@ -152,39 +152,44 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+	//add the current forward vector (scaled by speed) to the position, target, and above
+	vector3 forward = glm::normalize(m_v3Forward);
+	m_v3Position += forward * a_fDistance;
+	m_v3Target += forward * a_fDistance;
+	m_v3Above += forward * a_fDistance;
 }
 
 void MyCamera::MoveVertical(float a_fDistance)
 {
-	m_v3Position += vector3(0.0f, -a_fDistance, 0.0f);
-	m_v3Target += vector3(0.0f, -a_fDistance, 0.0f);
-	m_v3Above += vector3(0.0f, -a_fDistance, 0.0f);
-}//Needs to be defined
+	//add the current upward vector (scaled by speed) to the position, target, and above
+	vector3 upward = glm::normalize(m_v3Above - m_v3Position);
+	m_v3Position += upward * a_fDistance;
+	m_v3Target += upward * a_fDistance;
+	m_v3Above += upward * a_fDistance;
+}
 
 void MyCamera::MoveSideways(float a_fDistance)
 {
-	m_v3Position += vector3(a_fDistance, 0.0f, 0.0f);
-	m_v3Target += vector3(a_fDistance, 0.0f, 0.0f);
-	m_v3Above += vector3(a_fDistance, 0.0f, 0.0f);
+	vector3 right = glm::cross(glm::normalize(m_v3Forward), glm::normalize(m_v3Above - m_v3Position)); //right vector
+
+	//add the current right vector (scaled by speed) to the position, target, and above
+	m_v3Position += right * a_fDistance;
+	m_v3Target += right * a_fDistance;
+	m_v3Above += right * a_fDistance;
 }
 
 void Simplex::MyCamera::RotatePitch(float a_fAngle)
 {
 	vector3 right = glm::cross(m_v3Forward, glm::normalize(m_v3Above - m_v3Position)); //right vector
 
-	quaternion q = glm::angleAxis(glm::radians(a_fAngle), right);
-	m_v3Forward = glm::rotate(q, m_v3Forward);
-	SetTarget(m_v3Forward + m_v3Position);
+	quaternion q = glm::angleAxis(glm::radians(a_fAngle), right); //calculate angle quaternion around right vector
+	m_v3Forward = glm::rotate(q, m_v3Forward); //rotate the forward vector by the quaternion
+	SetTarget(m_v3Forward + m_v3Position); //set the target equal to the new forward + current position
 }
 
 void Simplex::MyCamera::RotateYaw(float a_fAngle)
 {
-	quaternion q = glm::angleAxis(glm::radians(a_fAngle), glm::normalize(m_v3Above - m_v3Position));
-	m_v3Forward = glm::rotate(q, m_v3Forward);
-	SetTarget(m_v3Forward + m_v3Position);
+	quaternion q = glm::angleAxis(a_fAngle, glm::normalize(m_v3Above - m_v3Position)); //calculate angle quaternion around upward vector
+	m_v3Forward = glm::rotate(q, m_v3Forward); //rotate the forward vector by the quaternion
+	SetTarget(m_v3Forward + m_v3Position); //set the target equal to the new forward + current position
 }
-//Needs to be defined
