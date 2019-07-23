@@ -301,6 +301,13 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	normals.push_back(glm::normalize(glm::cross(v3Corner[1] - v3Corner[0], v3Corner[2] - v3Corner[0])));
 	normals.push_back(glm::normalize(glm::cross(v3Corner[1] - v3Corner[0], v3Corner[4] - v3Corner[0])));
 
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[2] - a_pOther->v3Corner[0], a_pOther->v3Corner[4] - a_pOther->v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[2] - a_pOther->v3Corner[0], a_pOther->v3Corner[1] - a_pOther->v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[4] - a_pOther->v3Corner[0], a_pOther->v3Corner[1] - a_pOther->v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[4] - a_pOther->v3Corner[0], a_pOther->v3Corner[2] - a_pOther->v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[1] - a_pOther->v3Corner[0], a_pOther->v3Corner[2] - a_pOther->v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(a_pOther->v3Corner[1] - a_pOther->v3Corner[0], a_pOther->v3Corner[4] - a_pOther->v3Corner[0])));
+
 	//get max and min corner values along projection axes and compare for any overlap
 	for (vector3 n : normals) {
 		float maxA = -100000;
