@@ -38,6 +38,8 @@ class MyRigidBody
 
 	std::set<MyRigidBody*> m_CollidingRBSet; //set of rigid bodies this one is colliding with
 
+	vector3* v3Corner;
+
 public:
 	/*
 	Usage: Constructor

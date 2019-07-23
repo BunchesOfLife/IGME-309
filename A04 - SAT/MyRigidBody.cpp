@@ -86,7 +86,7 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 
 	//Calculate the 8 corners of the cube
-	vector3 v3Corner[8];
+	v3Corner = new vector3[8]();
 	//Back square
 	v3Corner[0] = m_v3MinL;
 	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
@@ -202,7 +202,7 @@ MyRigidBody& MyRigidBody::operator=(MyRigidBody const& a_pOther)
 	}
 	return *this;
 }
-MyRigidBody::~MyRigidBody() { Release(); };
+MyRigidBody::~MyRigidBody() { SafeDelete(v3Corner); Release(); };
 //--- a_pOther Methods
 void MyRigidBody::AddCollisionWith(MyRigidBody* a_pOther)
 {
@@ -286,7 +286,40 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	
+	vector3 otherMax = a_pOther->GetMaxLocal();
+	vector3 otherMin = a_pOther->GetMinLocal();
+	vector3 otherCenter = a_pOther->GetCenterLocal();
+	vector3 otherHalfWidth = a_pOther->GetHalfWidth();
+
+	//cross product normals of edges
+	std::vector<vector3> normals;
+	normals.push_back(glm::normalize(glm::cross(v3Corner[2] - v3Corner[0], v3Corner[4] - v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(v3Corner[2] - v3Corner[0], v3Corner[1] - v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(v3Corner[4] - v3Corner[0], v3Corner[1] - v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(v3Corner[4] - v3Corner[0], v3Corner[2] - v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(v3Corner[1] - v3Corner[0], v3Corner[2] - v3Corner[0])));
+	normals.push_back(glm::normalize(glm::cross(v3Corner[1] - v3Corner[0], v3Corner[4] - v3Corner[0])));
+
+	//get max and min corner values along projection axes and compare for any overlap
+	for (vector3 n : normals) {
+		float maxA = -100000;
+		float minA = 100000;
+		for (uint i = 0; i < 8; i++) {
+			float proj = glm::dot(n, v3Corner[i]);
+			if (proj > maxA) maxA = proj;
+			if (proj < minA) minA = proj;
+		}
+		float maxB = -100000;
+		float minB = 100000;
+		for (uint i = 0; i < 8; i++) {
+			float proj = glm::dot(n, a_pOther->v3Corner[i]);
+			if (proj > maxB) maxB = proj;
+			if (proj < minB) minB = proj;
+		}
+		if (maxB - minA > (maxA - minA) + (maxB - minB)) return 1;
+	}
 
 	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+	return 0;
 }
