@@ -233,6 +233,10 @@ void Simplex::MyOctant::DisplayLeafs(vector3 a_v3Color)
 
 void Simplex::MyOctant::ClearEntityList(void)
 {
+	for (uint i = 0; i < m_uChildren; i++) {
+		m_pChild[i]->ClearEntityList();
+	}
+	m_EntityList.clear();
 }
 
 void Simplex::MyOctant::Subdivide(void)
@@ -344,7 +348,7 @@ void Simplex::MyOctant::ConstructTree(uint a_nMaxLevel)
 	m_uOctantCount = 1;
 
 	//clear out any current tree
-	m_EntityList.clear();
+	ClearEntityList();
 	KillBranches();
 	m_lChild.clear();
 
