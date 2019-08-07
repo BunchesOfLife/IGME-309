@@ -22,6 +22,9 @@ public:
 	//3D location
 	vector3 location;
 
+	//mesh representing node
+	Mesh* mesh;
+
 	//list of linked nodes
 	std::vector<TravelNode*> links;
 
@@ -30,6 +33,8 @@ public:
 	TravelNode& operator=(TravelNode const& other);
 	~TravelNode(void);
 
+	void AddLink(TravelNode* other);
+	bool compareLocation(vector3 inLocation);
 };
 
 }
