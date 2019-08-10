@@ -21,20 +21,26 @@ public:
 
 	//3D location
 	vector3 location;
+	vector3 color = C_GRAY; //color based on start, end, and path
 
 	//mesh representing node
 	Mesh* mesh;
 
-	//list of linked nodes
-	std::vector<TravelNode*> links;
+	//linked nodes
+	TravelNode* yPos = nullptr;
+	TravelNode* yNeg = nullptr;
+	TravelNode* xPos = nullptr;
+	TravelNode* xNeg = nullptr;
+	TravelNode* zPos = nullptr;
+	TravelNode* zNeg = nullptr;
 
 	TravelNode(float inWeight, vector3 inLocation);
 	TravelNode(TravelNode const& other);
 	TravelNode& operator=(TravelNode const& other);
 	~TravelNode(void);
 
-	void AddLink(TravelNode* other);
-	bool compareLocation(vector3 inLocation);
+	bool compareLocation(TravelNode* other);
+	void changeColor(vector3 newColor);
 };
 
 }

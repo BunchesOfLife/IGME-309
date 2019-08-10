@@ -57,7 +57,8 @@ private:
 	sf::Sound m_sound; //sound effect
 	sf::Music m_soundBGM; //background music
 
-	std::vector<TravelNode*> pathMaze; //maze to be pathed through
+	static const uint size = 10;
+	TravelNode* pathMaze[size][size][size]; //maze to be pathed through
 
 public:
 #pragma region Constructor / Run / Destructor

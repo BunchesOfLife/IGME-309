@@ -1,5 +1,6 @@
 #include "AppClass.h"
 using namespace Simplex;
+
 void Application::InitVariables(void)
 {
 	m_sProgrammer = "Nora Murren - bsm4978@g.rit.edu";
@@ -19,19 +20,42 @@ void Application::InitVariables(void)
 
 	//generate a list of nodes with random weights in a 10x10x10 cube
 	vector3 startLocation = vector3(0.0f, 0.0f, 0.0f);
-	uint size = 10;
+	
+	//create 3D array of nodes
 	for (uint x = 0; x < size; x++) {
 		for (uint y = 0; y < size; y++) {
 			for (uint z = 0; z < size; z++) {
-				TravelNode* n = new TravelNode((float)dis(gen), vector3(x*2, y*2, z*2));
-				if (x == 0 && y == 0 && z == 0)
+				TravelNode* n = new TravelNode((float)dis(gen), vector3(x * 2, y * 2, z * 2));
+				if (x == 0 && y == 0 && z == 0) {
 					n->isStart = true;
-				if (x == size-1 && y == size-1 && z == size-1)
+					n->changeColor(C_GREEN);
+				}
+				if (x == size - 1 && y == size - 1 && z == size - 1) {
 					n->isEnd = true;
-				pathMaze.push_back(n);
+					n->changeColor(C_RED);
+				}
+				n->distToEnd = (float)sqrt(pow(size - x, 2) + pow(size - y, 2) + pow(size - z, 2));
+				pathMaze[x][y][z] = n;
 			}
 		}
 	}
+
+	//link neighboring nodes
+	for (uint x = 0; x < size; x++) {
+		for (uint y = 0; y < size; y++) {
+			for (uint z = 0; z < size; z++) {
+				pathMaze[x][y][z]->xPos = (x < size - 1) ? pathMaze[x + 1][y][z] : nullptr;
+				pathMaze[x][y][z]->xPos = (x > 0) ? pathMaze[x - 1][y][z] : nullptr;
+
+				pathMaze[x][y][z]->yPos = (y < size - 1) ? pathMaze[x][y + 1][z] : nullptr;
+				pathMaze[x][y][z]->yPos = (y > 0) ? pathMaze[x][y - 1][z] : nullptr;
+
+				pathMaze[x][y][z]->yPos = (z < size - 1) ? pathMaze[x][y][z + 1] : nullptr;
+				pathMaze[x][y][z]->yPos = (z > 0) ? pathMaze[x][y][z - 1] : nullptr;
+			}
+		}
+	}
+	
 
 	//-------------------------------------------------------
 
@@ -64,9 +88,13 @@ void Application::Display(void)
 
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
-	for (TravelNode* node : pathMaze) {
-		matrix4 loc = glm::translate(node->location);
-		node->mesh->Render(m4Projection, m4View, loc);
+	for (uint x = 0; x < size; x++) {
+		for (uint y = 0; y < size; y++) {
+			for (uint z = 0; z < size; z++) {
+				matrix4 loc = glm::translate(pathMaze[x][y][z]->location);
+				pathMaze[x][y][z]->mesh->Render(m4Projection, m4View, loc);
+			}
+		}
 	}
 		
 	//render list call
@@ -84,7 +112,6 @@ void Application::Display(void)
 
 void Application::Release(void)
 {
-	pathMaze.clear();
 	//release GUI
 	ShutdownGUI();
 }
