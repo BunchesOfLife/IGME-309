@@ -16,7 +16,7 @@ public:
 	bool isStart = false;
 	bool isEnd = false;
 
-	float distToEnd; //direct distance to destination
+	float heuristic; //direct distance to destination + weight
 	float weight; //weight value to move onto this node
 
 	//3D location
@@ -34,13 +34,17 @@ public:
 	TravelNode* zPos = nullptr;
 	TravelNode* zNeg = nullptr;
 
+	//pathing parent
+	TravelNode* parent = nullptr;
+
 	TravelNode(float inWeight, vector3 inLocation);
 	TravelNode(TravelNode const& other);
 	TravelNode& operator=(TravelNode const& other);
+	bool operator==(TravelNode const& other);
 	~TravelNode(void);
 
-	bool compareLocation(TravelNode* other);
 	void changeColor(vector3 newColor);
+	void computeHeuristic(uint x, uint y, uint z, uint size);
 };
 
 }

@@ -33,6 +33,13 @@ Simplex::TravelNode::TravelNode(TravelNode const & other)
 	isStart = other.isStart;
 	isEnd = other.isEnd;
 	location = other.location;
+	xPos = other.xPos;
+	xNeg = other.xNeg;
+	yPos = other.yPos;
+	yNeg = other.yNeg;
+	zPos = other.zPos;
+	zNeg = other.zNeg;
+	parent = other.parent;
 	mesh = new Mesh();
 	mesh->GenerateSphere(weight, 6, color);
 }
@@ -48,20 +55,35 @@ TravelNode & Simplex::TravelNode::operator=(TravelNode const & other)
 	return *this;
 }
 
-Simplex::TravelNode::~TravelNode(void)
+bool Simplex::TravelNode::operator==(TravelNode const & other)
 {
-}
-
-bool Simplex::TravelNode::compareLocation(TravelNode* other)
-{
-	vector3 inLocation = other->location;
-	if (location.x == inLocation.x && location.y == inLocation.y && location.z == inLocation.z)
+	if(location == other.location
+		&& isEnd == other.isEnd
+		&& isStart == other.isStart
+		&& mesh == other.mesh
+		&& color == other.color
+		&& xPos == other.xPos
+		&& xNeg == other.xNeg
+		&& yPos == other.yPos
+		&& yNeg == other.yNeg
+		&& zPos == other.zPos
+		&& zNeg == other.zNeg
+		&& parent == other.parent)
 		return true;
 	return false;
+}
+
+Simplex::TravelNode::~TravelNode(void)
+{
 }
 
 void Simplex::TravelNode::changeColor(vector3 newColor)
 {
 	color = newColor;
 	mesh->GenerateSphere(weight, 6, color);
+}
+
+void Simplex::TravelNode::computeHeuristic(uint x, uint y, uint z, uint size)
+{
+	heuristic = (float)sqrt(pow(size - x, 2) + pow(size - y, 2) + pow(size - z, 2)) + weight;
 }

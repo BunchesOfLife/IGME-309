@@ -57,8 +57,10 @@ private:
 	sf::Sound m_sound; //sound effect
 	sf::Music m_soundBGM; //background music
 
-	static const uint size = 10;
+	static const uint size = 10; //size X size X size matrix of nodes
 	TravelNode* pathMaze[size][size][size]; //maze to be pathed through
+	Mesh* traveller; //traveller object
+	std::vector<vector3> pathStops; //locations to lerp to
 
 public:
 #pragma region Constructor / Run / Destructor
